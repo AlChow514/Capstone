@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 # Load libraries
@@ -11,7 +13,7 @@ library(tidyverse)
 # load CSV
 
 ```{r}
-Ast_data <- read.csv("Data/Linelist SENTRY site_136.csv")
+Ast_data <- read.csv("Data/Linelist SENTRY site_136.csv", na.strings = c(""))
 dim(Ast_data)
 head(Ast_data)
 ```
@@ -33,13 +35,13 @@ col_clean <- function(x) {
 Ast_ecoli_clean <- Ast_ecoli %>% 
   select_if(col_clean)
   
-# Dropping uncessary columns
+# Dropping unnecessary columns
 Ast_ecoli_clean <- Ast_ecoli_clean %>% 
   select(
-    -c(1:3, 5:10, 12:16, 58:64)
+    -c(2:3, 5:10, 12:16, 58:64)
   )
 
-
 view(Ast_ecoli_clean)
+
 ```
 
