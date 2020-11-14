@@ -1,0 +1,50 @@
+---
+title: "Data Cleaning"
+author: "Albert Chow"
+date: "11/14/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+```
+
+<h3>
+Load Data
+</h3>
+```{r}
+ast_data <- read_csv("../Data/Linelist SENTRY site_136.csv", na = c(""))
+
+```
+<hr>
+<br></br>
+<h3>
+Filtering EC data
+</h3>
+```{r}
+# Selects for EC while dropping all na columns
+ast_ecoli <- ast_data %>% 
+  filter(`Organism Code` == "EC") %>% 
+  select_if(colSums(!is.na(.)) > 0) %>% 
+  select(`Collection Number`, `Study Year`, `Organism Code`, `Infection Type`, c(18:56))
+
+# Save working DF
+save(ast_ecoli, file = "../Data/ast_ecoli.RData")
+
+# Counts of isolates by study year
+ast_ecoli %>% 
+  group_by(
+    `Infection Type`,
+    `Study Year`
+  ) %>% 
+  summarise(N = n())
+
+# Count of isolates by infection type
+ast_ecoli %>% 
+  group_by(`Infection Type`) %>% 
+  summarise(N = n())
+```
+
