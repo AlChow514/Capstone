@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 ```
 
@@ -31,10 +31,46 @@ ast_ecoli <- ast_data %>%
   select_if(colSums(!is.na(.)) > 0) %>% 
   select(`Collection Number`, `Study Year`, `Organism Code`, `Infection Type`, c(18:56))
 
-# Save working DF
-save(ast_ecoli, file = "../Data/ast_ecoli.RData")
 
-# Counts of isolates by study year
+# Save working DF
+# save(ast_ecoli, file = "../Data/ast_ecoli.RData")
+
+# make csv of drugs that was tested
+drg_tested <- ast_ecoli %>% 
+  select_if(colSums(!is.na(.)) > 0) %>% 
+  select(c(5:length(.)))
+
+drg_tested_names <- as.data.frame(names(drg_tested))
+# write_csv(drg_tested_names, "../Data/ec_bp.csv")
+```
+<hr>
+<br></br>
+<h3>
+Casey's code to tabulate data
+</h3>
+```{r}
+# function to summarize percent of isolates with missing MIC
+pct_missing <- function (x){
+  round(sum(is.na(x)) / length(x), 2)
+}
+
+#tabulate the percent of missing data for each anti-microbials by study year
+ec_tab <- ast_ecoli %>% 
+  select(`Study Year`, c(5:length(.))) %>% 
+  group_by(`Study Year`) %>%  
+  summarise(across(1:39, pct_missing))
+  
+view(ast_ecoli %>% 
+  select(`Study Year`,`Ceftolozane-tazobactam`, FusidicAcid))
+```
+
+<hr>
+<br></br>
+<h3>
+Some descriptive stats
+</h3>
+```{r}
+ # Counts of isolates by study year
 ast_ecoli %>% 
   group_by(
     `Infection Type`,
@@ -46,5 +82,24 @@ ast_ecoli %>%
 ast_ecoli %>% 
   group_by(`Infection Type`) %>% 
   summarise(N = n())
+```
+
+
+
+
+
+
+
+Sandbox to make functions
+```{r}
+
+
+
+```
+Functions
+```{r}
+
+
+
 ```
 

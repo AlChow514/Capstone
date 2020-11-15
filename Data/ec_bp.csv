@@ -1,40 +1,40 @@
-antimicrobial,abbreviation,class,S ?,I ,R >,non-susceptible bp,resource,ecoff
-Amikacin,AMK,aminoglycoside,8,,16,,eucast,8
-Amoxicillin-clavulanic acid,AMC,beta lactam,32,,32,,eucast,
-Ampicillin,AMP,beta lactam,8,,8,,eucast,8
-Ampicillin-sulbactam,SAM,beta lactam,8,,8,,eucast,8
-Aztreonam,ATM,monobactam,1,,4,,eucast,0.25
-Cefazolin,CFZ,cephalosporin,,,,,,
-Cefepime,FEP,cephalosporin,1,,4,,eucast,0.125
-Cefoxitin,FOX,cephalosporin,,,,,,8
-Ceftaroline,CPT,cephalosporin,0.5,,0.5,,eucast,0.5
-Ceftazidime,CAZ,cephalosporin,1,,4,,eucast,0.5
-Ceftazidime-avibactam,CZA,cephalosporin,8,,8,,eucast,
-Ceftolozane-tazobactam,C/T,cephalosporin,1,,1,,eucast,1
-Ceftriaxone,CRO,cephalosporin,1,,2,,eucast,0.125
-Cefuroxime,CXM,cephalosporin,8,,8,,eucast,8
-Ciprofloxacin,CIP,fluoroquinolones,0.25,,0.5,,eucast,0.064
-Colistin,CST,polymyxin ,2,,2,,eucast,2
-Doripenem,DOR,carbapenem,1,,2,,eucast,0.125
-Doxycycline,DOX,tetracycline ,,,,,,4
-Ertapenem,ETP,carbapenem,0.5,,1,,eucast,
-FusidicAcid,FA,fusidane,,,,,,
-Gentamicin,GEN,aminoglycoside ,2,,4,,eucast,2
-Imipenem,IPM,carbapenem,2,,8,,eucast,0.5
-Levofloxacin,LVX,fluoroquinolones,0.5,,1,,eucast,0.25
-Meropenem,MEM,carbapenem,2,,8,,eucast,0.125
-Minocycline,MIN,tetracycline ,,,,,,4
-Moxifloxacin,MXF,fluoroquinolones,,,,,,0.25
-Mupirocin,MUP,monoxycarbolic acid,,,,,,
-NalidixicAcid,NAL,quinolone ,,,,,,8
-Omadacycline,OMC,tetracycline ,,,,,,
-Oritavancin,ORI,glycopeptide ,,,,,,
-Piperacillin,PIP,beta lactam,8,,16,,eucast,8
-Piperacillin-tazobactam,TZP,beta lactam,8,,16,,eucast,8
-Polymyxin B,PMB,polymyxin ,,,,,,
-Retapamulin,,pleuromutilin ,,,,,,
-Tetracycline,TET,tetracycline,,,,,,8
-Ticarcillin-clavulanate,TIM,beta lactam,8,,16,,eucast,16
-Tigecycline,TGC,glycylcycline,1,,2,,eucast,0.5
-Tobramycin,TOB,aminoglycoside ,2,,4,,eucast,4
-Trimethoprim-sulfamethoxazole,SXT,sulfonamide,2,,4,,eucast,0.25
+names(drg_tested)
+Amikacin
+Amoxicillin-clavulanic acid
+Ampicillin
+Ampicillin-sulbactam
+Aztreonam
+Cefazolin
+Cefepime
+Cefoxitin
+Ceftaroline
+Ceftazidime
+Ceftazidime-avibactam
+Ceftolozane-tazobactam
+Ceftriaxone
+Cefuroxime
+Ciprofloxacin
+Colistin
+Doripenem
+Doxycycline
+Ertapenem
+FusidicAcid
+Gentamicin
+Imipenem
+Levofloxacin
+Meropenem
+Minocycline
+Moxifloxacin
+Mupirocin
+NalidixicAcid
+Omadacycline
+Oritavancin
+Piperacillin
+Piperacillin-tazobactam
+Polymyxin B
+Retapamulin
+Tetracycline
+Ticarcillin-clavulanate
+Tigecycline
+Tobramycin
+Trimethoprim-sulfamethoxazole
