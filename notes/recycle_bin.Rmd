@@ -1,0 +1,73 @@
+---
+title: "recycle code"
+author: "Albert Chow"
+date: "11/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+inf_year <- ast_ecoli %>% 
+  filter(`Infection Type` == "bloodstream infection", `Study Year` == 2008)
+
+inf_year_drg <- inf_year %>% 
+  select(c(5:length(.)))
+
+drg_tested <- inf_year_drg %>% 
+  select_if(colSums(!is.na(.)) > 0)
+
+drg_tested_names <- names(drg_tested)
+
+drg_not_tested_names <- names(inf_year_drg[, !names(inf_year_drg) %in% drg_tested_names])
+
+tib_tested <- tibble(`Drugs Tested` = drg_tested_names)
+tib_not_tested <- tibble(`Drugs not tested` = drg_not_tested_names)
+print("blood inf, year \n")
+
+
+##############
+drg_test <- function(type, year) {
+  
+  inf_year <- ast_ecoli %>% 
+    filter(`Infection Type` == type, `Study Year` == year)
+  
+  inf_year_drg <- inf_year %>% 
+  select(c(5:length(.)))
+  
+  drg_tested <- inf_year_drg %>% 
+  select_if(colSums(!is.na(.)) > 0)
+  
+  drg_tested_names <- names(drg_tested)
+
+  drg_not_tested_names <- names(inf_year_drg[, !names(inf_year_drg) %in% drg_tested_names])
+  
+  tib_tested <- tibble(`Drug tested` = drg_tested_names)
+  
+  tib_not_tested <- tibble(`Drugs not tested` = drg_not_tested_names)
+
+  header <- paste(type, year, sep = " ")
+  
+  output <- c(header, tib_tested, tib_not_tested)
+  output
+}
+
+map2(inf_type_names, 2008, drg_test)
+
+
+
+inf_type_names <- ast_ecoli %>% 
+  select(`Infection Type`) %>% 
+  distinct()
+
+inf_type_names <- as.character(inf_type_names$`Infection Type`)
+
+```
+
+```{r}
+
+```
+

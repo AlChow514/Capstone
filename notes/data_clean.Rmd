@@ -28,7 +28,8 @@ Filtering EC data
 # Selects for EC while dropping all na columns
 ast_ecoli <- ast_data %>% 
   filter(`Organism Code` == "EC") %>% 
-  select_if(colSums(!is.na(.)) > 0) %>% 
+  select(which(colSums(!is.na(.)) > 0)) %>%  
+  #select_if(colSums(!is.na(.)) > 0) %>% 
   select(`Collection Number`, `Study Year`, `Organism Code`, `Infection Type`, c(18:56))
 
 
@@ -59,9 +60,56 @@ ec_tab <- ast_ecoli %>%
   select(`Study Year`, c(5:length(.))) %>% 
   group_by(`Study Year`) %>%  
   summarise(across(1:39, pct_missing))
-  
-view(ast_ecoli %>% 
-  select(`Study Year`,`Ceftolozane-tazobactam`, FusidicAcid))
+
+# drugs questionable at least tested in 5 years
+drugs  <- ec_tab %>% 
+  select(-`Study Year`) %>% 
+  summarise(across(.cols = everything(), sum)) %>% 
+  select(which(. >= 5))
+
+drugs_omit <- names(drugs)
+
+# Table of AST data with drugs that was tested for more than 5 years
+ast_ecoli_cleaned <- ast_ecoli %>% 
+  select(-drugs_omit)
+### save(ast_ecoli_cleaned, file = "../Data/ast_ecoli_cleaned.RData")
+
+# vector name of drugs tested for filtering if needed
+am_included <- names(ast_ecoli_cleaned[, c(5:length(ast_ecoli_cleaned))])
+drugs_tested <- tibble(am_included)
+```
+<hr>
+<br></br>
+<h3>
+Cleaning Bp data
+</h3>
+```{r}
+bp_ec_eucast <- read_csv("../Data/ec_bp_eucast.csv")
+bp_ec_clsi <- read_csv("../Data/ec_bp_clsi.csv")
+
+#Drop am without s and r
+bp_ec_eucast <- bp_ec_eucast %>% 
+  filter(!is.na(.$`S <=`) & !is.na(.$`R >`))
+
+bp_ec_clsi <- bp_ec_clsi %>% 
+  filter(!is.na(.$`S <=`) & !is.na(.$`R >=`))
+```
+<hr>
+<br></br>
+<h3>
+Data Cleaning 
+</h3>
+```{r}
+# numerical index for mic to interpretation function
+eucast_am_bp <- match(bp_ec_eucast$antimicrobial, names(ast_ecoli_cleaned))
+eucast_am_bp <- eucast_am_bp[!is.na(eucast_am_bp)]
+
+clsi_am_bp <- match(bp_ec_clsi$antimicrobial, names(ast_ecoli_cleaned))
+clsi_am_bp <- clsi_am_bp[!is.na(clsi_am_bp)]
+
+source("../scripts/dataclean_fun.R", local = FALSE, echo = TRUE, spaced = TRUE)
+
+
 ```
 
 <hr>
@@ -71,7 +119,7 @@ Some descriptive stats
 </h3>
 ```{r}
  # Counts of isolates by study year
-ast_ecoli %>% 
+ast_ecoli_cleaned %>% 
   group_by(
     `Infection Type`,
     `Study Year`
@@ -79,7 +127,7 @@ ast_ecoli %>%
   summarise(N = n())
 
 # Count of isolates by infection type
-ast_ecoli %>% 
+ast_ecoli_cleaned %>% 
   group_by(`Infection Type`) %>% 
   summarise(N = n())
 ```
