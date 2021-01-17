@@ -32,6 +32,12 @@ ast_ecoli <- ast_data %>%
   #select_if(colSums(!is.na(.)) > 0) %>% 
   select(`Collection Number`, `Study Year`, `Organism Code`, `Infection Type`, c(18:56))
 
+# Separate UTI data
+ast_ec_uti <- ast_ecoli %>% 
+  filter(`Infection Type` == "urinary tract infection")
+
+ast_ecoli <- ast_ecoli %>% 
+  filter(`Infection Type` != "urinary tract infection")
 
 # Save working DF
 # save(ast_ecoli, file = "../Data/ast_ecoli.RData")
@@ -62,20 +68,22 @@ ec_tab <- ast_ecoli %>%
   summarise(across(1:39, pct_missing))
 
 # drugs questionable at least tested in 5 years
-drugs  <- ec_tab %>% 
+drugs <- ec_tab %>% 
   select(-`Study Year`) %>% 
   summarise(across(.cols = everything(), sum)) %>% 
-  select(which(. >= 5))
+  select(which(. <= 0))
 
-drugs_omit <- names(drugs)
+am_included <- names(drugs)
 
 # Table of AST data with drugs that was tested for more than 5 years
 ast_ecoli_cleaned <- ast_ecoli %>% 
-  select(-drugs_omit)
+  select(all_of(am_included))
 ### save(ast_ecoli_cleaned, file = "../Data/ast_ecoli_cleaned.RData")
 
 # vector name of drugs tested for filtering if needed
-am_included <- names(ast_ecoli_cleaned[, c(5:length(ast_ecoli_cleaned))])
+ast_ec_omit <- ast_ecoli %>% 
+  select(-all_of(am_included))
+
 drugs_tested <- tibble(am_included)
 ```
 <hr>
@@ -89,10 +97,12 @@ bp_ec_clsi <- read_csv("../Data/ec_bp_clsi.csv")
 
 #Drop am without s and r
 bp_ec_eucast <- bp_ec_eucast %>% 
-  filter(!is.na(.$`S <=`) & !is.na(.$`R >`))
+  filter(!is.na(.$`S <=`) & !is.na(.$`R >`)) %>% 
+  mutate('NSbp' = as.numeric(`S <=`))
 
 bp_ec_clsi <- bp_ec_clsi %>% 
-  filter(!is.na(.$`S <=`) & !is.na(.$`R >=`))
+  filter(!is.na(.$`S <=`) & !is.na(.$`R >=`)) %>% 
+  mutate('NSbp' = as.numeric(`S <=`))
 ```
 <hr>
 <br></br>
@@ -101,13 +111,15 @@ Data Cleaning
 </h3>
 ```{r}
 # numerical index for mic to interpretation function
-eucast_am_bp <- match(bp_ec_eucast$antimicrobial, names(ast_ecoli_cleaned))
-eucast_am_bp <- eucast_am_bp[!is.na(eucast_am_bp)]
+eucast_am_bp_ind <- match(bp_ec_eucast$antimicrobial, names(ast_ecoli_cleaned))
+eucast_am_bp_ind <- eucast_am_bp_ind[!is.na(eucast_am_bp_ind)]
 
-clsi_am_bp <- match(bp_ec_clsi$antimicrobial, names(ast_ecoli_cleaned))
-clsi_am_bp <- clsi_am_bp[!is.na(clsi_am_bp)]
+clsi_am_bp_ind <- match(bp_ec_clsi$antimicrobial, names(ast_ecoli_cleaned))
+clsi_am_bp_ind <- clsi_am_bp_ind[!is.na(clsi_am_bp_ind)]
 
 source("../scripts/dataclean_fun.R", local = FALSE, echo = TRUE, spaced = TRUE)
+
+ec_interp_eucast <- mic_interp(ast_ecoli_cleaned, eucast_am_bp_ind, bp_ec_eucast)
 
 
 ```
