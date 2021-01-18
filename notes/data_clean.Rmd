@@ -110,8 +110,9 @@ bp_ec_clsi <- bp_ec_clsi %>%
 Data Cleaning 
 </h3>
 ```{r}
+names(bp_ec_eucast)[1] <- "Antimicrobial" #CC, mic interp function references a column "Antimicrobial" with capital "A"
 # numerical index for mic to interpretation function
-eucast_am_bp_ind <- match(bp_ec_eucast$antimicrobial, names(ast_ecoli_cleaned))
+eucast_am_bp_ind <- match(bp_ec_eucast$Antimicrobial, names(ast_ecoli_cleaned))
 eucast_am_bp_ind <- eucast_am_bp_ind[!is.na(eucast_am_bp_ind)]
 
 clsi_am_bp_ind <- match(bp_ec_clsi$antimicrobial, names(ast_ecoli_cleaned))
@@ -121,6 +122,8 @@ source("../scripts/dataclean_fun.R", local = FALSE, echo = TRUE, spaced = TRUE)
 
 ec_interp_eucast <- mic_interp(ast_ecoli_cleaned, eucast_am_bp_ind, bp_ec_eucast)
 
+
+ec_interp_eucast <- MIC_to_interpretation(ast_ecoli_cleaned, eucast_am_bp_ind, bp_ec_eucast) #CC use this one.
 
 ```
 
