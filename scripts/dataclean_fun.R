@@ -38,18 +38,18 @@ MIC_to_interpretation <- function (data, index, bp){
                                     "<=" = "", 
                                     "=" = "",
                                     ">" = "1000",
-                                    "[^0-9]" = "")))) #treat any ">" MIC values as large number to clearly distinguish from "-" MIC values in case different dilution series are tested for the same AM.
+                                    "[^.,0-9]" = "")))) #treat any ">" MIC values as large number to clearly distinguish from "-" MIC values in case different dilution series are tested for the same AM.
     
     #categorize each MIC value as S or NS based on the breakpoint
     if ((is.na(bp.index)+is.na(bp$NSbp[bp.index]))>0){ #if there bp.index for the i MIC column is NA, then there is no bp for that AM. OR if the bp is NA
       data[,i]<-NA #replace all MIC values with NA
       warning("missing breakpoint for ", colnames(data)[i], "\n") #warn that there is no bp for a column
     } else{ #if the bp.index is not NA, then there is a bp for that AM
-      data[,i]<-discretize((data[[i]]), method="fixed", 
-                           breaks=c(-Inf, bp$NSbp[bp.index], Inf), 
+      data[,i]<-discretize((data[[i]]), method="fixed",
+                           breaks=c(-Inf, bp$NSbp[bp.index], Inf),
                            right=TRUE, labels=c("FALSE", "TRUE")) #discretize the MIC values at the bp. Intervals are right closed: (-Inf,bp]; (bp, Inf). Hence, MIC values >bp are given "True" (NS) and MIC values <=bp are given "False" (S)
       data[,i]=as.logical(data[[i]]) #make logical
-    } 
+    }
     
   }
   
