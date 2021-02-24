@@ -1,0 +1,31 @@
+---
+title: "format tables"
+author: "Albert Chow"
+date: "2/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kableExtra)
+```
+
+load data
+```{r}
+load("../Data/eu_prevalance.RData")
+load("../Data/clsi_prevalance.RData")
+```
+
+format table
+```{r}
+names(eu_prevalence_data)[1] <- "Infection Type"
+eu_prevalence_data %>% 
+  kbl() %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F)
+
+names(clsi_prevalence_data)[1] <- "Infection Type"
+clsi_prevalence_data %>% 
+  kbl() %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F)
+```
+

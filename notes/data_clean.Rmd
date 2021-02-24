@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
+
 ```
 
 <h3>
@@ -132,6 +133,28 @@ ec_interp_eucast <- ec_interp_eucast %>%
 
 ec_interp_clsi <- ec_interp_clsi %>% 
   select(1:2, names(ec_interp_clsi[sapply(ec_interp_clsi, is.logical)]))
+
+# add column with MDR, sum across row with TRUE >= 3
+ec_interp_eucast <- ec_interp_eucast %>% 
+  mutate(MDR = rowSums(.[3:15] == "TRUE")) %>% 
+  mutate(
+    MDR = ifelse(
+      MDR >= 3,
+      TRUE,
+      FALSE
+    )
+  ) 
+
+ec_interp_clsi <- ec_interp_clsi %>% 
+  mutate(MDR = rowSums(.[3:15] == "TRUE")) %>% 
+  mutate(
+    MDR = ifelse(
+      MDR >= 3,
+      TRUE,
+      FALSE
+    )
+  )   
+
 ```
 
 <hr>
@@ -148,7 +171,7 @@ ast_ecoli %>%
 
 
 # Count of isolates by infection type
-ast_ecoli %>% 
+ast_ecoli_cleaned %>% 
   group_by(Infection.Type) %>% 
   summarise(N = n())
 
@@ -156,6 +179,105 @@ ast_ecoli %>%
 
   
   
+
+```
+Make tables
+```{r}
+
+# fun_prevalence <- function(df, x) {
+#   prev <- round(sum(df[, x] == "TRUE") / nrow(df), digits = 2) * 100
+#   prev
+# }
+# 
+# blood_eu <- NULL
+# blood_eu <- ec_interp_eucast %>%
+#   select(2:length(.)) %>%
+#   filter(.$Infection.Type == "bloodstream infection") %>%
+#   mutate(SAM = fun_prevalence(., 2),
+#          AZT = fun_prevalence(., 3),
+#          FEP = fun_prevalence(., 4),
+#          CAZ = fun_prevalence(., 5),
+#          CRO = fun_prevalence(., 6),
+#          DOR = fun_prevalence(., 7),
+#          GM = fun_prevalence(., 8),
+#          IPM = fun_prevalence(., 9),
+#          LVX = fun_prevalence(., 10),
+#          MEM = fun_prevalence(., 11),
+#          TZP = fun_prevalence(., 12),
+#          TGC = fun_prevalence(., 13),
+#          SXT = fun_prevalence(., 14),
+#          MDRO = fun_prevalence(., 15)) %>%
+#   select(1, c(16:length(.))) %>%
+#   group_by(Infection.Type, .[2:length(.)]) %>%
+#   summarize(N = n()) %>%
+#   select(1, 16, c(2:15))
+
+#######
+fun_prevalence <- function(df, x) {
+  prev <- round(sum(df[, x] == "TRUE") / nrow(df), digits = 3) * 100
+  prev
+}
+
+fun_eu_prev <- function(inf_type) {
+  
+  output <- ec_interp_eucast %>% 
+    select(2:length(.)) %>% 
+    filter(.$Infection.Type == inf_type) %>% 
+    mutate(SAM = fun_prevalence(., 2),
+           AZT = fun_prevalence(., 3),
+           FEP = fun_prevalence(., 4),
+           CAZ = fun_prevalence(., 5),
+           CRO = fun_prevalence(., 6),
+           DOR = fun_prevalence(., 7),
+           GM = fun_prevalence(., 8),
+           IPM = fun_prevalence(., 9),
+           LVX = fun_prevalence(., 10),
+           MEM = fun_prevalence(., 11),
+           TZP = fun_prevalence(., 12),
+           TGC = fun_prevalence(., 13),
+           SXT = fun_prevalence(., 14),
+           MDRO = fun_prevalence(., 15)) %>% 
+    select(1, c(16:length(.))) %>%
+    group_by(Infection.Type, .[2:length(.)]) %>% 
+    summarize(N = n()) %>% 
+    select(1, 16, c(2:15))
+  
+  output
+}
+
+fun_clsi_prev <- function(inf_type) {
+  output <- ec_interp_clsi %>% 
+    select(2:length(.)) %>% 
+    filter(.$Infection.Type == inf_type) %>% 
+    mutate(SAM = fun_prevalence(., 2),
+           AZT = fun_prevalence(., 3),
+           FEP = fun_prevalence(., 4),
+           CAZ = fun_prevalence(., 5),
+           CRO = fun_prevalence(., 6),
+           DOR = fun_prevalence(., 7),
+           DOX = fun_prevalence(., 8),
+           GM = fun_prevalence(., 9),
+           IMP = fun_prevalence(., 10),
+           LVX = fun_prevalence(., 11),
+           MEM = fun_prevalence(., 12),
+           TZP = fun_prevalence(., 13),
+           SXT = fun_prevalence(., 14),
+           MDRO = fun_prevalence(., 15)) %>%
+    select(1, c(16:length(.))) %>%
+    group_by(Infection.Type, .[2:length(.)]) %>%
+    summarize(N = n()) %>%
+    select(1, 16, c(2:15))
+  
+  output
+}
+
+infection_types <- c("bloodstream infection", "intra-abdominal infection", "pneumonia in hospitalized patients", "skin/soft tissue infection")
+
+eu_prevalence_data <- do.call(rbind, lapply(infection_types, fun_eu_prev))
+clsi_prevalence_data <- do.call(rbind, lapply(infection_types, fun_clsi_prev))
+
+save(eu_prevalence_data, file = "../Data/eu_prevalance.RData")
+save(clsi_prevalence_data, file = "../Data/clsi_prevalance.RData")
 
 ```
 
@@ -228,6 +350,7 @@ clsi_check <- clsi_check[, c(1,
 bp_ec_clsi %>% 
   filter(Antimicrobial %in% clsi_ab_names) %>% 
   select(c(1, 8))
+
 ```
 Functions
 ```{r}
