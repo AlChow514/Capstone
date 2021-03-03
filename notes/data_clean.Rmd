@@ -131,29 +131,49 @@ ec_interp_clsi <- MIC_to_interpretation(ast_ecoli_cleaned, clsi_am_bp_ind, bp_ec
 ec_interp_eucast <- ec_interp_eucast %>% 
   select(1:2, names(ec_interp_eucast[sapply(ec_interp_eucast, is.logical)]))
 
+save(ast_ecoli_cleaned, file = "../Data/ec_interp_eucast.RData")
+
 ec_interp_clsi <- ec_interp_clsi %>% 
   select(1:2, names(ec_interp_clsi[sapply(ec_interp_clsi, is.logical)]))
 
-# add column with MDR, sum across row with TRUE >= 3
-ec_interp_eucast <- ec_interp_eucast %>% 
-  mutate(MDR = rowSums(.[3:15] == "TRUE")) %>% 
-  mutate(
-    MDR = ifelse(
-      MDR >= 3,
-      TRUE,
-      FALSE
-    )
-  ) 
+save(ast_ecoli_cleaned, file = "../Data/ec_interp_clsi.RData")
 
-ec_interp_clsi <- ec_interp_clsi %>% 
-  mutate(MDR = rowSums(.[3:15] == "TRUE")) %>% 
+# ECV classes
+
+eu_mdr_df <- ec_interp_eucast %>% 
   mutate(
-    MDR = ifelse(
-      MDR >= 3,
-      TRUE,
-      FALSE
-    )
-  )   
+    BL = if_else(
+       (Ampicillin.sulbactam | Piperacillin.tazobactam) == TRUE, TRUE, FALSE
+     ),
+    CS = if_else(
+       (Cefepime | Ceftazidime | Ceftriaxone) == TRUE, TRUE, FALSE
+     ),
+     CP = if_else(
+       (Doripenem | Imipenem | Meropenem) == TRUE, TRUE, FALSE
+     )
+   ) %>%
+  mutate(
+    mdr = rowSums(across(c(4, 9, 11, 14:18)) == TRUE),
+    mdro = if_else(mdr >= 3, TRUE, FALSE)
+  )
+  
+clsi_mdr_df <- ec_interp_clsi %>% 
+  mutate(
+    BL = if_else(
+       (Ampicillin.sulbactam | Piperacillin.tazobactam) == TRUE, TRUE, FALSE
+     ),
+    CS = if_else(
+       (Cefepime | Ceftazidime | Ceftriaxone) == TRUE, TRUE, FALSE
+     ),
+    CP = if_else(
+       (Doripenem | Imipenem | Meropenem) == TRUE, TRUE, FALSE
+     )
+  ) %>%
+  mutate(
+    mdr = rowSums(across(c(4, 8:10, 12, 14:18)) == TRUE),
+    mdro = if_else(mdr >= 3, TRUE, FALSE)
+  )
+
 
 ```
 
@@ -189,28 +209,28 @@ Make tables
 #   prev
 # }
 # 
-# blood_eu <- NULL
-# blood_eu <- ec_interp_eucast %>%
-#   select(2:length(.)) %>%
-#   filter(.$Infection.Type == "bloodstream infection") %>%
-#   mutate(SAM = fun_prevalence(., 2),
-#          AZT = fun_prevalence(., 3),
-#          FEP = fun_prevalence(., 4),
-#          CAZ = fun_prevalence(., 5),
-#          CRO = fun_prevalence(., 6),
-#          DOR = fun_prevalence(., 7),
-#          GM = fun_prevalence(., 8),
-#          IPM = fun_prevalence(., 9),
-#          LVX = fun_prevalence(., 10),
-#          MEM = fun_prevalence(., 11),
-#          TZP = fun_prevalence(., 12),
-#          TGC = fun_prevalence(., 13),
-#          SXT = fun_prevalence(., 14),
-#          MDRO = fun_prevalence(., 15)) %>%
-#   select(1, c(16:length(.))) %>%
-#   group_by(Infection.Type, .[2:length(.)]) %>%
-#   summarize(N = n()) %>%
-#   select(1, 16, c(2:15))
+blood_eu <- NULL
+blood_eu <- eu_mdr_df %>%
+  select(2:length(.)) %>%
+  filter(.$Infection.Type == "bloodstream infection") %>%
+  mutate(SAM = fun_prevalence(., 2),
+         AZT = fun_prevalence(., 3),
+         FEP = fun_prevalence(., 4),
+         CAZ = fun_prevalence(., 5),
+         CRO = fun_prevalence(., 6),
+         DOR = fun_prevalence(., 7),
+         GM = fun_prevalence(., 8),
+         IPM = fun_prevalence(., 9),
+         LVX = fun_prevalence(., 10),
+         MEM = fun_prevalence(., 11),
+         TZP = fun_prevalence(., 12),
+         TGC = fun_prevalence(., 13),
+         SXT = fun_prevalence(., 14),
+         MDRS = fun_prevalence(., 19)) %>%
+  select(1, c(20:length(.))) %>%
+  group_by(Infection.Type, .[2:length(.)]) %>%
+  summarize(N = n()) %>%
+  select(1, 16, c(2:15))
 
 #######
 fun_prevalence <- function(df, x) {
@@ -218,9 +238,19 @@ fun_prevalence <- function(df, x) {
   prev
 }
 
+fun_prevalence <- function(df, x) {
+  if(x == 'mdro') {
+    prev <- round(sum(df[, x] == "TRUE") / nrow(df), digits = 3) * 100
+  } else {
+    prev <- round(sum(df[, x] == "FALSE") / nrow(df), digits = 3) * 100
+  }
+  prev
+}
+
+
 fun_eu_prev <- function(inf_type) {
   
-  output <- ec_interp_eucast %>% 
+  output <- eu_mdr_df %>% 
     select(2:length(.)) %>% 
     filter(.$Infection.Type == inf_type) %>% 
     mutate(SAM = fun_prevalence(., 2),
@@ -236,8 +266,8 @@ fun_eu_prev <- function(inf_type) {
            TZP = fun_prevalence(., 12),
            TGC = fun_prevalence(., 13),
            SXT = fun_prevalence(., 14),
-           MDRO = fun_prevalence(., 15)) %>% 
-    select(1, c(16:length(.))) %>%
+           MDRS = fun_prevalence(., 19)) %>% 
+    select(1, c(20:length(.))) %>%
     group_by(Infection.Type, .[2:length(.)]) %>% 
     summarize(N = n()) %>% 
     select(1, 16, c(2:15))
@@ -246,7 +276,7 @@ fun_eu_prev <- function(inf_type) {
 }
 
 fun_clsi_prev <- function(inf_type) {
-  output <- ec_interp_clsi %>% 
+  output <- clsi_mdr_df %>% 
     select(2:length(.)) %>% 
     filter(.$Infection.Type == inf_type) %>% 
     mutate(SAM = fun_prevalence(., 2),
@@ -262,8 +292,8 @@ fun_clsi_prev <- function(inf_type) {
            MEM = fun_prevalence(., 12),
            TZP = fun_prevalence(., 13),
            SXT = fun_prevalence(., 14),
-           MDRO = fun_prevalence(., 15)) %>%
-    select(1, c(16:length(.))) %>%
+           MDRS = fun_prevalence(., 19)) %>%
+    select(1, c(20:length(.))) %>%
     group_by(Infection.Type, .[2:length(.)]) %>%
     summarize(N = n()) %>%
     select(1, 16, c(2:15))
