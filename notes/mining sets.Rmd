@@ -1,0 +1,65 @@
+---
+title: "mining sets"
+author: "Albert Chow"
+date: "3/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(arules)
+```
+
+Mining sets
+```{r}
+# All infection types transactions
+eu_all_types <- as(eu_all_db, "transactions")
+clsi_all_types <- as(clsi_all_db, "transactions")
+
+## All infection optimistic transaction databases for calculating expected support, CSR and lift
+eu_all_types_opt <- eu_mdr_df[itemLabels(eu_all_types)]
+eu_all_types_opt <- as(eu_all_types_opt, "transactions")
+
+clsi_all_types_opt <- clsi_mdr_df[itemLabels(clsi_all_types)]
+clsi_all_types_opt <- as(clsi_all_types_opt, "transactions")
+
+## function for mining sets
+fun_set_mine <- function(data, odata, db) {
+  
+  # min support = 1 isolate resistant
+  minsup = 1 / length(data)
+  sets = apriori(data, parameter = list(support = minsup, maxlen = length(am_col), minlen = 2, target = "frequent itemsets"))
+  
+  # get quality measures
+  itemset_list <- LIST(items(sets), decode = FALSE)
+  crossSupRatio <- interestMeasure(sets, "crossSupportRatio", data, reuse = TRUE)
+  lift <- interestMeasure(sets, "lift", data, reuse = TRUE)
+  sets@quality$crossSupRatio <- crossSupRatio
+  sets@quality$lift <- lift
+  eQM <- expectedQM(sets, data, odata, db, itemset_list)
+  sets@quality$eSup <- eQM$eSup
+  sets@quality$eCSR <- eQM$eCSR
+  sets@quality$eLift <- eQM$eLift
+  sets@quality$cLift <- eQM$cLift
+  
+  assign(set_name, sets)
+  return(set_name)
+}
+
+fun_set_mine(eu_all_types, eu_all_types_opt, eu_all_db)
+
+
+
+```
+
+```{r}
+eu_am_col <- eu_mdr_df %>% 
+  select(1:15)
+
+am_col <- match(names(eu_am_col)[sapply(eu_am_col, is.logical)], names(eu_am_col))
+
+
+```
+
+

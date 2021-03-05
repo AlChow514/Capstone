@@ -58,3 +58,70 @@ MIC_to_interpretation <- function (data, index, bp){
   data #return the discretized data
 }
 
+# function to summarize percent of isolates with missing MIC
+pct_missing <- function (x){
+  round(sum(is.na(x)) / length(x), 2)
+}
+
+# Functions to construct prevalence table
+fun_prevalence <- function(df, x) {
+  if(x == 'mdro') {
+    prev <- round(sum(df[, x] == "TRUE") / nrow(df), digits = 3) * 100
+  } else {
+    prev <- round(sum(df[, x] == "FALSE") / nrow(df), digits = 3) * 100
+  }
+  prev
+}
+
+fun_eu_prev <- function(inf_type) {
+  
+  output <- eu_mdr_df %>% 
+    select(2:length(.)) %>% 
+    filter(.$Infection.Type == inf_type) %>% 
+    mutate(SAM = fun_prevalence(., 2),
+           AZT = fun_prevalence(., 3),
+           FEP = fun_prevalence(., 4),
+           CAZ = fun_prevalence(., 5),
+           CRO = fun_prevalence(., 6),
+           DOR = fun_prevalence(., 7),
+           GM = fun_prevalence(., 8),
+           IPM = fun_prevalence(., 9),
+           LVX = fun_prevalence(., 10),
+           MEM = fun_prevalence(., 11),
+           TZP = fun_prevalence(., 12),
+           TGC = fun_prevalence(., 13),
+           SXT = fun_prevalence(., 14),
+           MDRS = fun_prevalence(., 19)) %>% 
+    select(1, c(20:length(.))) %>%
+    group_by(Infection.Type, .[2:length(.)]) %>% 
+    summarize(N = n()) %>% 
+    select(1, 16, c(2:15))
+  
+  output
+}
+
+fun_clsi_prev <- function(inf_type) {
+  output <- clsi_mdr_df %>% 
+    select(2:length(.)) %>% 
+    filter(.$Infection.Type == inf_type) %>% 
+    mutate(SAM = fun_prevalence(., 2),
+           AZT = fun_prevalence(., 3),
+           FEP = fun_prevalence(., 4),
+           CAZ = fun_prevalence(., 5),
+           CRO = fun_prevalence(., 6),
+           DOR = fun_prevalence(., 7),
+           DOX = fun_prevalence(., 8),
+           GM = fun_prevalence(., 9),
+           IMP = fun_prevalence(., 10),
+           LVX = fun_prevalence(., 11),
+           MEM = fun_prevalence(., 12),
+           TZP = fun_prevalence(., 13),
+           SXT = fun_prevalence(., 14),
+           MDRS = fun_prevalence(., 19)) %>%
+    select(1, c(20:length(.))) %>%
+    group_by(Infection.Type, .[2:length(.)]) %>%
+    summarize(N = n()) %>%
+    select(1, 16, c(2:15))
+  
+  output
+}

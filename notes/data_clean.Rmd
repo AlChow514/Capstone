@@ -233,10 +233,7 @@ blood_eu <- eu_mdr_df %>%
   select(1, 16, c(2:15))
 
 #######
-fun_prevalence <- function(df, x) {
-  prev <- round(sum(df[, x] == "TRUE") / nrow(df), digits = 3) * 100
-  prev
-}
+
 
 fun_prevalence <- function(df, x) {
   if(x == 'mdro') {
@@ -308,6 +305,64 @@ clsi_prevalence_data <- do.call(rbind, lapply(infection_types, fun_clsi_prev))
 
 save(eu_prevalence_data, file = "../Data/eu_prevalance.RData")
 save(clsi_prevalence_data, file = "../Data/clsi_prevalance.RData")
+
+```
+Data Splitting
+```{r}
+
+inf_type_split <- split(eu_mdr_df, eu_mdr_df$Infection.Type)
+inf_type_split_clsi <- split(clsi_mdr_df, clsi_mdr_df$Infection.Type)
+
+eu_abx_names <- eu_mdr_df %>% 
+  select(3:15) %>% 
+  names()
+
+clsi_abx_names <- clsi_mdr_df %>% 
+  select(3:15) %>% 
+  names()
+
+#### eu split  
+eu_bld_db <- as.data.frame(inf_type_split[1]) %>% 
+  select(3:15) %>% 
+  setNames(eu_abx_names)
+
+eu_inab_db <- as.data.frame(inf_type_split[2]) %>% 
+  select(3:15) %>% 
+  setNames(eu_abx_names)
+
+eu_pneu_db <- as.data.frame(inf_type_split[3]) %>% 
+  select(3:15) %>% 
+  setNames(eu_abx_names)
+
+eu_skin_db <- as.data.frame(inf_type_split[4]) %>% 
+  select(3:15) %>% 
+  setNames(eu_abx_names)
+
+eu_all_db <- eu_mdr_df %>% 
+  select(3:15) %>% 
+  setNames(eu_abx_names)
+
+#### clsi split
+
+clsi_bld_db <- as.data.frame(inf_type_split_clsi[1]) %>% 
+  select(3:15) %>% 
+  setNames(clsi_abx_names)
+
+clsi_inab_db <- as.data.frame(inf_type_split_clsi[2]) %>% 
+  select(3:15) %>% 
+  setNames(clsi_abx_names)
+
+clsi_pneu_db <- as.data.frame(inf_type_split_clsi[3]) %>% 
+  select(3:15) %>% 
+  setNames(clsi_abx_names)
+
+clsi_skin_db <- as.data.frame(inf_type_split_clsi[4]) %>% 
+  select(3:15) %>% 
+  setNames(clsi_abx_names)
+
+clsi_all_db <- clsi_mdr_df %>% 
+  select(3:15) %>% 
+  setNames(clsi_abx_names)
 
 ```
 
