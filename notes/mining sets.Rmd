@@ -13,53 +13,73 @@ library(arules)
 
 Mining sets
 ```{r}
+# find indexes of antimicrobial column in df, ecv and clsi data is the same
+am_col <- eu_mdr_df %>% 
+  select(1:15) 
+am_col <- match(names(am_col)[sapply(am_col, is.logical)], names(am_col))
+
+
 # All infection types transactions
 eu_all_types <- as(eu_all_db, "transactions")
-clsi_all_types <- as(clsi_all_db, "transactions")
 
-## All infection optimistic transaction databases for calculating expected support, CSR and lift
-eu_all_types_opt <- eu_mdr_df[itemLabels(eu_all_types)]
-eu_all_types_opt <- as(eu_all_types_opt, "transactions")
-
-clsi_all_types_opt <- clsi_mdr_df[itemLabels(clsi_all_types)]
-clsi_all_types_opt <- as(clsi_all_types_opt, "transactions")
-
-## function for mining sets
-fun_set_mine <- function(data, odata, db) {
-  
-  # min support = 1 isolate resistant
-  minsup = 1 / length(data)
-  sets = apriori(data, parameter = list(support = minsup, maxlen = length(am_col), minlen = 2, target = "frequent itemsets"))
-  
-  # get quality measures
-  itemset_list <- LIST(items(sets), decode = FALSE)
-  crossSupRatio <- interestMeasure(sets, "crossSupportRatio", data, reuse = TRUE)
-  lift <- interestMeasure(sets, "lift", data, reuse = TRUE)
-  sets@quality$crossSupRatio <- crossSupRatio
-  sets@quality$lift <- lift
-  eQM <- expectedQM(sets, data, odata, db, itemset_list)
-  sets@quality$eSup <- eQM$eSup
-  sets@quality$eCSR <- eQM$eCSR
-  sets@quality$eLift <- eQM$eLift
-  sets@quality$cLift <- eQM$cLift
-  
-  assign(set_name, sets)
-  return(set_name)
-}
-
-fun_set_mine(eu_all_types, eu_all_types_opt, eu_all_db)
-
-
+# eu_all_types
+# 1. Minimum support
+min_sup <- 1 / length(eu_all_types)
+sets <- apriori(eu_all_types, parameter = list(support = min_sup,
+                                               maxlen = length(am_col),
+                                               minlen = 2,
+                                               target = "frequent itemsets"))
+## 2. Quality measures
+itemset_list <- LIST(items(sets), decode = FALSE)
+CrossSupRatio <- interestMeasure(sets, "crossSupportRatio", eu_all_types, reuse = TRUE)
+lift <- interestMeasure(sets, "lift", eu_all_types, reuse = TRUE)
 
 ```
 
+Iteration for all sets
 ```{r}
-eu_am_col <- eu_mdr_df %>% 
-  select(1:15)
+# find indexes of antimicrobial column in df, ecv and clsi data is the same
+am_col <- eu_mdr_df %>% 
+  select(1:15) 
+am_col <- match(names(am_col)[sapply(am_col, is.logical)], names(am_col))
 
-am_col <- match(names(eu_am_col)[sapply(eu_am_col, is.logical)], names(eu_am_col))
+# eu sets
+eu_db_sets <- c("eu_all_db", "eu_bld_db", "eu_inab_db", "eu_pneu_db", "eu_skin_db")
 
+# create eu transaction databases
+for (i in seq_along(eu_db_sets)) {
+  x <- as(get(eu_db_sets[i]), "transactions")
+  label <- paste(as.character(paste(eu_db_sets[i], "_trans", sep = "")))
+  assign(label, x)
+  rm(x)
+  rm(label)
+}
 
+# Mine sets
+eu_trans_names <- c("eu_all_db_trans", "eu_bld_db_trans", "eu_inab_db_trans", "eu_pneu_db_trans", "eu_skin_db_trans")
+eu_set_names <- c("eu_all_set", "eu_bld_set", "eu_bld_set", "eu_inab_set", "eu_pneu_set", "eu_skin_set")
+for (i in seq_along(eu_trans_names)) {
+  data <- get(eu_trans_names[i])
+  # minimum support
+  min_sup <- 1 / length(data)
+  sets <- apriori(data,
+                  parameter = list(support = min_sup,
+                                   maxlen = length(am_col),
+                                   minlen = 2,
+                                   target = "frequent itemsets"))
+  # Quality Measures
+  CrossSupRatio <- interestMeasure(sets,
+                                   "crossSupportRatio",
+                                   data,
+                                   reuse = TRUE)
+  lift <- interestMeasure(sets,
+                          "lift",
+                          data,
+                          reuse = TRUE)
+  # save
+  assign(eu_set_names[i], sets)
+  rm(data, min_sup, sets, CrossSupRatio, lift)
+}
 ```
 
 
