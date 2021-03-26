@@ -1,0 +1,5 @@
+Infection.Type,N,SAM,AZT,CEP,CAZ,CRO,DOR,GM,IMI,LVX,MEM,TZP,DOX,SXT,MDR
+bloodstream infection,247,0.48,0.86,0.85,0.87,0.83,1,0.84,1,0.63,1,0.92,0.64,0.55,0.4
+intra-abdominal infection,52,0.37,0.85,0.88,0.88,0.83,1,0.83,1,0.67,1,0.83,0.63,0.63,0.38
+pneumonia in hospitalized patients,70,0.44,0.77,0.8,0.8,0.74,1,0.89,1,0.53,1,0.87,0.61,0.64,0.5
+skin/soft tissue infection,120,0.48,0.79,0.82,0.83,0.76,0.98,0.78,0.98,0.6,0.98,0.92,0.64,0.62,0.42000000000000004

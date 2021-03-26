@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+         http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+<!-- Created by igraph -->
+  <key id="v_name" for="node" attr.name="name" attr.type="string"/>
+  <key id="v_label" for="node" attr.name="label" attr.type="string"/>
+  <key id="v_support" for="node" attr.name="support" attr.type="double"/>
+  <key id="v_transIdenticalToItemsets" for="node" attr.name="transIdenticalToItemsets" attr.type="double"/>
+  <key id="v_count" for="node" attr.name="count" attr.type="double"/>
+  <key id="v_CrossSupRatio" for="node" attr.name="CrossSupRatio" attr.type="double"/>
+  <key id="v_lift" for="node" attr.name="lift" attr.type="double"/>
+  <key id="v_order" for="node" attr.name="order" attr.type="double"/>
+  <graph id="G" edgedefault="directed">
+    <node id="n0">
+      <data key="v_name">2</data>
+      <data key="v_label">Aztreonam</data>
+      <data key="v_count">-2147483648</data>
+      <data key="v_order">-2147483648</data>
+    </node>
+    <node id="n1">
+      <data key="v_name">3</data>
+      <data key="v_label">Ceftazidime</data>
+      <data key="v_count">-2147483648</data>
+      <data key="v_order">-2147483648</data>
+    </node>
+    <node id="n2">
+      <data key="v_name">4</data>
+      <data key="v_label">Ceftriaxone</data>
+      <data key="v_count">-2147483648</data>
+      <data key="v_order">-2147483648</data>
+    </node>
+    <node id="n3">
+      <data key="v_name">7</data>
+      <data key="v_label">Piperacillin.tazobactam</data>
+      <data key="v_count">-2147483648</data>
+      <data key="v_order">-2147483648</data>
+    </node>
+    <node id="n4">
+      <data key="v_name">assoc1</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.134615384615385</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">7</data>
+      <data key="v_CrossSupRatio">0.923076923076923</data>
+      <data key="v_lift">2.33333333333333</data>
+      <data key="v_order">2</data>
+    </node>
+    <node id="n5">
+      <data key="v_name">assoc2</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.134615384615385</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">7</data>
+      <data key="v_CrossSupRatio">1</data>
+      <data key="v_lift">2.15384615384615</data>
+      <data key="v_order">2</data>
+    </node>
+    <node id="n6">
+      <data key="v_name">assoc3</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.153846153846154</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">8</data>
+      <data key="v_CrossSupRatio">1</data>
+      <data key="v_lift">2.46153846153846</data>
+      <data key="v_order">2</data>
+    </node>
+    <node id="n7">
+      <data key="v_name">assoc4</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.230769230769231</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">12</data>
+      <data key="v_CrossSupRatio">0.923076923076923</data>
+      <data key="v_lift">4</data>
+      <data key="v_order">2</data>
+    </node>
+    <node id="n8">
+      <data key="v_name">assoc5</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.230769230769231</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">12</data>
+      <data key="v_CrossSupRatio">0.923076923076923</data>
+      <data key="v_lift">4</data>
+      <data key="v_order">2</data>
+    </node>
+    <node id="n9">
+      <data key="v_name">assoc6</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.230769230769231</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">12</data>
+      <data key="v_CrossSupRatio">1</data>
+      <data key="v_lift">3.69230769230769</data>
+      <data key="v_order">2</data>
+    </node>
+    <node id="n10">
+      <data key="v_name">assoc7</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.134615384615385</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">7</data>
+      <data key="v_CrossSupRatio">0.923076923076923</data>
+      <data key="v_lift">9.33333333333333</data>
+      <data key="v_order">3</data>
+    </node>
+    <node id="n11">
+      <data key="v_name">assoc8</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.134615384615385</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">7</data>
+      <data key="v_CrossSupRatio">0.923076923076923</data>
+      <data key="v_lift">9.33333333333333</data>
+      <data key="v_order">3</data>
+    </node>
+    <node id="n12">
+      <data key="v_name">assoc9</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.134615384615385</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">7</data>
+      <data key="v_CrossSupRatio">1</data>
+      <data key="v_lift">8.61538461538462</data>
+      <data key="v_order">3</data>
+    </node>
+    <node id="n13">
+      <data key="v_name">assoc10</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.230769230769231</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">12</data>
+      <data key="v_CrossSupRatio">0.923076923076923</data>
+      <data key="v_lift">16</data>
+      <data key="v_order">3</data>
+    </node>
+    <node id="n14">
+      <data key="v_name">assoc11</data>
+      <data key="v_label"></data>
+      <data key="v_support">0.134615384615385</data>
+      <data key="v_transIdenticalToItemsets">0</data>
+      <data key="v_count">7</data>
+      <data key="v_CrossSupRatio">0.923076923076923</data>
+      <data key="v_lift">37.3333333333333</data>
+      <data key="v_order">4</data>
+    </node>
+    <edge source="n0" target="n4">
+    </edge>
+    <edge source="n3" target="n4">
+    </edge>
+    <edge source="n2" target="n5">
+    </edge>
+    <edge source="n3" target="n5">
+    </edge>
+    <edge source="n1" target="n6">
+    </edge>
+    <edge source="n3" target="n6">
+    </edge>
+    <edge source="n0" target="n7">
+    </edge>
+    <edge source="n2" target="n7">
+    </edge>
+    <edge source="n0" target="n8">
+    </edge>
+    <edge source="n1" target="n8">
+    </edge>
+    <edge source="n1" target="n9">
+    </edge>
+    <edge source="n2" target="n9">
+    </edge>
+    <edge source="n0" target="n10">
+    </edge>
+    <edge source="n2" target="n10">
+    </edge>
+    <edge source="n3" target="n10">
+    </edge>
+    <edge source="n0" target="n11">
+    </edge>
+    <edge source="n1" target="n11">
+    </edge>
+    <edge source="n3" target="n11">
+    </edge>
+    <edge source="n1" target="n12">
+    </edge>
+    <edge source="n2" target="n12">
+    </edge>
+    <edge source="n3" target="n12">
+    </edge>
+    <edge source="n0" target="n13">
+    </edge>
+    <edge source="n1" target="n13">
+    </edge>
+    <edge source="n2" target="n13">
+    </edge>
+    <edge source="n0" target="n14">
+    </edge>
+    <edge source="n1" target="n14">
+    </edge>
+    <edge source="n2" target="n14">
+    </edge>
+    <edge source="n3" target="n14">
+    </edge>
+  </graph>
+</graphml>

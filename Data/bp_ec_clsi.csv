@@ -1,0 +1,32 @@
+Antimicrobial,abbreviation,class,S...,I,R...,dd,NSbp
+Amikacin,AMK,aminoglycoside,16,32,64,,16
+Amoxicillin.clavulanic.acid,AMC,beta lactam,8,16,32,,8
+Ampicillin,AMP,beta lactam,8,16,32,,8
+Ampicillin.sulbactam,SAM,beta lactam,8,16,32,,8
+Aztreonam,ATM,monobactam,4,8,16,,4
+Cefazolin,CFZ,cephalosporin,2,4,8,,2
+Cefepime,FEP,cephalosporin,2,,16,8-Apr,2
+Cefoxitin,FOX,cephalosporin,8,16,32,,8
+Ceftaroline,CPT,cephalosporin,0.5,1,2,,0.5
+Ceftazidime,CAZ,cephalosporin,4,8,16,,4
+Ceftazidime.avibactam,CZA,cephalosporin,8,,16,,8
+Ceftolozane.tazobactam,C/T,cephalosporin,2,4,8,,2
+Ceftriaxone,CRO,cephalosporin,1,2,4,,1
+Cefuroxime,CXM,cephalosporin,8,16,32,,8
+Ciprofloxacin,CIP,fluoroquinolones,0.25,0.5,1,,0.25
+Doripenem,DOR,carbapenem,1,2,4,,1
+Doxycycline,DOX,tetracycline ,4,8,16,,4
+Ertapenem,ETP,carbapenem,0.5,1,2,,0.5
+Gentamicin,GEN,aminoglycoside ,4,8,16,,4
+Imipenem,IPM,carbapenem,1,2,4,,1
+Levofloxacin,LVX,fluoroquinolones,0.5,0.5,1,,0.5
+Meropenem,MEM,carbapenem,1,2,4,,1
+Minocycline,MIN,tetracycline ,4,8,16,,4
+NalidixicAcid,NAL,quinolone ,16,,32,,16
+Piperacillin,PIP,beta lactam,16,32-64,128,,16
+Piperacillin.tazobactam,TZP,beta lactam,16,32-64,128,,16
+Tetracycline,TET,tetracycline,4,8,16,,4
+Ticarcillin.clavulanate,TIM,beta lactam,16,32-64,128,,16
+Tobramycin,TOB,aminoglycoside ,4,8,16,,4
+Trimethoprim.sulfamethoxazole,SXT,sulfonamide,2,,4,,2
+Nitrofurantoin,NIT,nitrofurans,32,64,128,,32

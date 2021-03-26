@@ -1,5 +1,6 @@
 # Casey's code to convert mic to interpretation
 
+
 MIC_to_interpretation <- function (data, index, bp){
   #required packages
   require (stringr)
@@ -14,21 +15,38 @@ MIC_to_interpretation <- function (data, index, bp){
     bp.index<-match(names(data)[i],bp$Antimicrobial) #index of which AM bp should be applied to the i MIC column
     
     #Check that the dilutions tested cover the breakpoint appropriately (bp must be > smallest MIC value and < largest MIC value tested). Print warning if the bp does not fall within the tested dilutions
-    dilution_bp_check1=as.numeric(sapply(data[,i], function(x) str_match(x, "<=(.*)")[,2]))
+    #dilution_bp_check1=as.numeric(sapply(data[,i], function(x) str_match(x, "<=(.*)")[,2]))
+    min_dilution_too_big = as.numeric(str_match(as.character(data[,i]), "<=(.*)")[,2])>bp$NSbp[bp.index]
+    if (any(min_dilution_too_big==TRUE, na.rm=TRUE)){
+      warning("minimum dilution greater than breakpoint for ", colnames(data)[i], ". ", sum(min_dilution_too_big==TRUE, na.rm=TRUE), " values replaced by NA \n")
+    }
+    
+    max_dilution_too_small=as.numeric(str_match(as.character(data[,i]), ">(.*)")[,2])<bp$NSbp[bp.index]
+    if (any(max_dilution_too_small==TRUE, na.rm=TRUE)){
+      warning("maximum dilution less than breakpoint for ", colnames(data)[i], ". ", sum(max_dilution_too_small==TRUE, na.rm=TRUE)," values replaced by NA \n")
+    }
+    
+    #turn NA into FALSE for indexing
+    min_dilution_too_big <- replace_na(min_dilution_too_big, FALSE)
+    max_dilution_too_small <- replace_na(max_dilution_too_small, FALSE)
+    #replace MIC values with NA when it is a min dilution that is too big or a max dilution that is too small
+    data[min_dilution_too_big,i] <- as.character(NA)
+    data[max_dilution_too_small,i] <- as.character(NA)
+    
     #this splits the MIC into two columns at "<=". The original string is in the first column returned. If there is a "<=", the MIC is in the second column. if there is not a "<=", it generates an NA in both columns
     
-    dilution_bp_check2=as.numeric(sapply(data[,i], function(x) str_match(x, ">(.*)")[,2]))
+    #dilution_bp_check2=as.numeric(sapply(data[,i], function(x) str_match(x, ">(.*)")[,2]))
     #this splits the MIC into two columns at ">". The original string is in the first column. If there is a ">", the MIC is in the second column. if there is not a ">", it generates an NA in both columns
     
     #if any of the minimum MIC values are greater than the breakpoint, warn
-    if (any(dilution_bp_check1>bp$NSbp[bp.index], na.rm=TRUE)){
-      warning("minimum dilution greater than breakpoint for ", colnames(data)[i], "\n")
-    }
+    # if (any(dilution_bp_check1>bp$NSbp[bp.index], na.rm=TRUE)){
+    #   warning("minimum dilution greater than breakpoint for ", colnames(data)[i], "\n")
+    # }
     
     #if any of the maximum MIC values are greater than the breakpoint, warn
-    if (any(dilution_bp_check2<bp$NSbp[bp.index], na.rm=TRUE)){
-      warning("maximum dilution less than breakpoint for ", colnames(data)[i], "\n")
-    }
+    # if (any(dilution_bp_check2<bp$NSbp[bp.index], na.rm=TRUE)){
+    #   warning("maximum dilution less than breakpoint for ", colnames(data)[i], "\n")
+    # }
     
     
     #next remove >, <=, =; remove anything that isn't a digit; then make MIC numeric
@@ -58,70 +76,33 @@ MIC_to_interpretation <- function (data, index, bp){
   data #return the discretized data
 }
 
+
+
+
+
 # function to summarize percent of isolates with missing MIC
 pct_missing <- function (x){
   round(sum(is.na(x)) / length(x), 2)
 }
 
 # Functions to construct prevalence table
-fun_prevalence <- function(df, x) {
-  if(x == 'mdro') {
-    prev <- round(sum(df[, x] == "TRUE") / nrow(df), digits = 3) * 100
-  } else {
-    prev <- round(sum(df[, x] == "FALSE") / nrow(df), digits = 3) * 100
-  }
+fun_sum_ab <- function(x) {
+  prev <- round(sum(x == FALSE, na.rm = TRUE) / (sum(x == TRUE, na.rm = TRUE) + sum(x == FALSE, na.rm = TRUE)), digits = 2)
   prev
 }
 
-fun_eu_prev <- function(inf_type) {
+#function to remove data with more than 25% missing
+fun_remove <- function(df){
+  rm_names <- df %>% 
+    summarise(across(everything(),
+                     pct_missing)) %>%
+    select(which(. <= 0.25))
   
-  output <- eu_mdr_df %>% 
-    select(2:length(.)) %>% 
-    filter(.$Infection.Type == inf_type) %>% 
-    mutate(SAM = fun_prevalence(., 2),
-           AZT = fun_prevalence(., 3),
-           FEP = fun_prevalence(., 4),
-           CAZ = fun_prevalence(., 5),
-           CRO = fun_prevalence(., 6),
-           DOR = fun_prevalence(., 7),
-           GM = fun_prevalence(., 8),
-           IPM = fun_prevalence(., 9),
-           LVX = fun_prevalence(., 10),
-           MEM = fun_prevalence(., 11),
-           TZP = fun_prevalence(., 12),
-           TGC = fun_prevalence(., 13),
-           SXT = fun_prevalence(., 14),
-           MDRS = fun_prevalence(., 19)) %>% 
-    select(1, c(20:length(.))) %>%
-    group_by(Infection.Type, .[2:length(.)]) %>% 
-    summarize(N = n()) %>% 
-    select(1, 16, c(2:15))
+  rm_names <- names(rm_names)
   
-  output
+  df <- df %>% 
+    select(all_of(rm_names))
+  
+  return(df)
 }
 
-fun_clsi_prev <- function(inf_type) {
-  output <- clsi_mdr_df %>% 
-    select(2:length(.)) %>% 
-    filter(.$Infection.Type == inf_type) %>% 
-    mutate(SAM = fun_prevalence(., 2),
-           AZT = fun_prevalence(., 3),
-           FEP = fun_prevalence(., 4),
-           CAZ = fun_prevalence(., 5),
-           CRO = fun_prevalence(., 6),
-           DOR = fun_prevalence(., 7),
-           DOX = fun_prevalence(., 8),
-           GM = fun_prevalence(., 9),
-           IMP = fun_prevalence(., 10),
-           LVX = fun_prevalence(., 11),
-           MEM = fun_prevalence(., 12),
-           TZP = fun_prevalence(., 13),
-           SXT = fun_prevalence(., 14),
-           MDRS = fun_prevalence(., 19)) %>%
-    select(1, c(20:length(.))) %>%
-    group_by(Infection.Type, .[2:length(.)]) %>%
-    summarize(N = n()) %>%
-    select(1, 16, c(2:15))
-  
-  output
-}

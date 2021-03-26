@@ -1,43 +1,7 @@
----
-title: "mining sets"
-author: "Albert Chow"
-date: "3/5/2021"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# Load Libraries
 library(tidyverse)
-library(arulesViz)
-```
+library(arules)
 
-Model Iteration
-```{r}
-# find indexes of antimicrobial column in df, ecv and clsi data is the same
-am_col <- eu_mdr_df %>% 
-  select(1:15) 
-am_col <- match(names(am_col)[sapply(am_col, is.logical)], names(am_col))
-
-
-# All infection types transactions
-eu_all_types <- as(eu_all_db, "transactions")
-
-# eu_all_types
-# 1. Minimum support
-min_sup <- 1 / length(eu_all_types)
-sets <- apriori(eu_all_types, parameter = list(support = min_sup,
-                                               maxlen = length(am_col),
-                                               minlen = 2,
-                                               target = "frequent itemsets"))
-## 2. Quality measures
-itemset_list <- LIST(items(sets), decode = FALSE)
-CrossSupRatio <- interestMeasure(sets, "crossSupportRatio", eu_all_types, reuse = TRUE)
-lift <- interestMeasure(sets, "lift", eu_all_types, reuse = TRUE)
-
-```
-
-Iteration for all sets
-```{r}
 # find indexes of antimicrobial column in df, ecv and clsi data is the same
 am_col <- eu_mdr_df %>% 
   select(1:15) 
@@ -63,7 +27,7 @@ for (i in seq_along(eu_trans_names)) {
   min_sup <- 1 / length(data)
   sets <- apriori(data,
                   parameter = list(support = min_sup,
-                                   maxlen = 11,
+                                   maxlen = length(am_col),
                                    minlen = 2,
                                    target = "frequent itemsets"))
   # Quality Measures
@@ -85,9 +49,7 @@ for (i in seq_along(eu_trans_names)) {
   assign(eu_set_names[i], sets)
   rm(data, min_sup, sets, CrossSupRatio, lift)
 }
-```
 
-```{r}
 # clsi sets
 clsi_db_sets <- c("clsi_all_db", "clsi_bld_db", "clsi_inab_db", "clsi_pneu_db", "clsi_skin_db")
 
@@ -108,7 +70,7 @@ for (i in seq_along(clsi_trans_names)) {
   min_sup <- 1 / length(data)
   sets <- apriori(data,
                   parameter = list(support = min_sup,
-                                   maxlen = 13,
+                                   maxlen = length(am_col),
                                    minlen = 2,
                                    target = "frequent itemsets"))
   # Quality Measures
@@ -130,9 +92,8 @@ for (i in seq_along(clsi_trans_names)) {
   assign(clsi_set_names[i], sets)
   rm(data, min_sup, sets, CrossSupRatio, lift)
 }
-```
-Casey's code to convert to DF
-```{r}
+
+# Casey's code to convert to DF
 all_sets <- function (best_setNames, labelNames){
   #required packages
   require(tidyr)
@@ -141,7 +102,7 @@ all_sets <- function (best_setNames, labelNames){
   #first, sets must be transformed from class itemsets to data frame. uses setsAsDataFrame function
   setsAsDataFrame <- function(sets, cat) {
     itemsets <- labels(items(sets)) #itemset names
-  
+    
     #create dataframe with category and relevant quality measures
     data.frame(
       Category <- rep(cat, length(sets)),
@@ -150,7 +111,7 @@ all_sets <- function (best_setNames, labelNames){
       count <- quality(sets)$count,
       csr <- quality(sets)$CrossSupRatio,
       lift<-quality(sets)$lift
-   )
+    )
   }
   
   
@@ -165,10 +126,10 @@ all_sets <- function (best_setNames, labelNames){
   }
   #appropriate column names
   colnames(all.sets) <- c("Category", "items", "support", "count", "csr", "lift")
-
+  
   #calculate the itemset order (number of AM in the set)
   all.sets$order <- str_count(all.sets$items, ",")+1 #in the itemset string, AM are divided by ",": count the commas and add 1 for the order
-
+  
   #tabulate quality measures for each itemset in each database; display with each unique itemset as a row and the QM value in each category as the columns
   all.sets.sup <- select(all.sets, "Category", "items", "support", "order") #support in each itemset. drop other QM columns
   all.sets.sup <- spread(all.sets.sup, Category, support, drop=TRUE) #create one column for each category, place support of itemset, within category, in those columns. reduces to one row per itemset
@@ -177,7 +138,7 @@ all_sets <- function (best_setNames, labelNames){
   
   all.sets.csr <- select(all.sets, "Category", "items", "csr", "order") #csr in each itemset
   all.sets.csr <- spread(all.sets.csr, Category, csr, drop=TRUE)
-
+  
   all.sets.lift <- select(all.sets, "Category", "items", "lift", "order") #lift in each itemset
   all.sets.lift <- spread(all.sets.lift, Category, lift, drop=TRUE)
   
@@ -188,9 +149,9 @@ all_sets <- function (best_setNames, labelNames){
   
   all.sets.out #return the list of dataframes
 }
-```
-Convert to DF
-```{r}
+
+
+# Split list into individual DFs
 all_mine_df <- c("eu_all_set", "eu_bld_set", "eu_inab_set", "eu_pneu_set", "eu_skin_set",
                  "clsi_all_set", "clsi_bld_set", "clsi_inab_set", "clsi_pneu_set", "clsi_skin_set")
 
@@ -206,68 +167,8 @@ for (i in seq_along(all_df)) {
   assign(label, x)
   rm(label, x)
 }
-```
-inspecting data
-```{r}
-all_mine_df <- c("eu_all_set", "eu_bld_set", "eu_inab_set", "eu_pneu_set", "eu_skin_set",
-                 "clsi_all_set", "clsi_bld_set", "clsi_inab_set", "clsi_pneu_set", "clsi_skin_set")
 
-plt_labels <- c("eu_all_plt", "eu_bld_plt", "eu_inab_plt", "eu_pneumo_plt", "eu_skin_tissue_plt",
-               "clsi_all_plt", "clsi_bld_plt", "clsi_inab_plt", "clsi_pneumo_plt", "clsi_skin_tissue_plt")
-
-for (i in seq_along(all_mine_df)) {
-  data <- get(all_mine_df[i])
-  x <- subset(data, subset = CrossSupRatio > 0.75)
-  label <- paste0(as.character(plt_labels[i]))
-  assign(label, x)
-  rm(label, x, data)
-  
-  data <- get(plt_labels[i])
-  saveAsGraph(data, paste0("../Data/graphs/", as.character(plt_labels[i]), ".graphml"))
-}
-
-#####
-saveAsGraph(clsi_all_plt, "../Data/graphs/clsi_all_plt.graphml")
-
-plot(graph_example, method = "graph")
-interest_sub <- subset(eu_all_set, subset = CrossSupRatio > 0.75)
-clsi_bld_plt <- subset(clsi_bld_set, subset = CrossSupRatio > 0.75)
-
-graph_example <- head(interest_sub, n = 100, by = "lift")
-
-
-saveAsGraph(head(interest_sub, n = 1000, by = "lift"), file = "clsi_all.graphml")
-
-
-plot(interest_sub, method = "graph")
-plot(interest_sub, measure = c("support", "lift"), shading = "CrossSupRatio")
-arulesViz::plot(interest_sub, measure = "lift", method = "matrix")
-
-### 
-clsi_all_set <- subset(clsi_all_set, subset = CrossSupRatio > 0.75)
-plot(clsi_all_set, method = "graph")
-
-clsi_bld_plt <- subset(clsi_bld_set, subset = CrossSupRatio > 0.75)
-plot(clsi_bld_plt, method = "graph")
-
-clsi_inab_plt <- subset(clsi_inab_set, subset = CrossSupRatio > 0.75)
-plot(clsi_inab_plt, method = "graph")
-
-clsi_pneu_plt <- subset(clsi_inab_set, subset = CrossSupRatio > 0.75)
-plot(clsi_pneu_plt, method = "graph")
-
-clsi_skin_plt <- subset(clsi_skin_set, subset = CrossSupRatio > 0.75)
-plot(clsi_skin_plt, method = "graph")
-```
-ecv
-```{r}
-eu_all_plt <- subset(eu_all_set, subset = CrossSupRatio > 0.75)
-plot(eu_all_plt, method= "graph")
-```
-```{r}
-sapply(ec_interp_eucast, function(x) sum(is.na(x)))
-
-
-```
-
-
+save(df_category, file = "Data/df_category.RData")
+save(df_support, file = "Data/df_support.RData")
+save(df_csr, file = "Data/df_csr.RData")
+save(df_lift, file = "Data/df_lift.RData")
