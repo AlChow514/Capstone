@@ -230,11 +230,51 @@ eu_prevalence_data <- eu_mdr_df %>%
     MDR = 1 - fun_sum_ab(mdro)
   )
 
+eu_prevalence_data_total <- eu_mdr_df %>% 
+  select(2:15, 20) %>% 
+  summarize(
+    N = n(),
+    SAM = fun_sum_ab(Ampicillin.sulbactam),
+    AZT = fun_sum_ab(Aztreonam),
+    CEP = fun_sum_ab(Cefepime),
+    CAZ = fun_sum_ab(Ceftazidime),
+    CRO = fun_sum_ab(Ceftriaxone),
+    DOR = fun_sum_ab(Doripenem),
+    GM = fun_sum_ab(Gentamicin),
+    IMI = fun_sum_ab(Imipenem),
+    LVX = fun_sum_ab(Levofloxacin),
+    MEM = fun_sum_ab(Meropenem),
+    TZP = fun_sum_ab(Piperacillin.tazobactam),
+    TGC = fun_sum_ab(Tigecycline),
+    SXT = fun_sum_ab(Trimethoprim.sulfamethoxazole),
+    MDR = 1 - fun_sum_ab(mdro)
+  )
 write_csv(eu_prevalence_data, "../Data/eu_prevalence_data.csv")
 
 clsi_prevalence_data <- clsi_mdr_df %>% 
   select(2:15, 20) %>% 
   group_by(Infection.Type) %>% 
+  summarize(
+    N = n(),
+    SAM = fun_sum_ab(Ampicillin.sulbactam),
+    AZT = fun_sum_ab(Aztreonam),
+    CEP = fun_sum_ab(Cefepime),
+    CAZ = fun_sum_ab(Ceftazidime),
+    CRO = fun_sum_ab(Ceftriaxone),
+    DOR = fun_sum_ab(Doripenem),
+    GM = fun_sum_ab(Gentamicin),
+    IMI = fun_sum_ab(Imipenem),
+    LVX = fun_sum_ab(Levofloxacin),
+    MEM = fun_sum_ab(Meropenem),
+    TZP = fun_sum_ab(Piperacillin.tazobactam),
+    DOX = fun_sum_ab(Doxycycline),
+    SXT = fun_sum_ab(Trimethoprim.sulfamethoxazole),
+    MDR = 1 - fun_sum_ab(mdro)
+  )
+
+clsi_prevalence_data_total <- clsi_mdr_df %>% 
+  select(2:15, 20) %>% 
+  
   summarize(
     N = n(),
     SAM = fun_sum_ab(Ampicillin.sulbactam),
@@ -293,6 +333,26 @@ eu_skin_db <- as.data.frame(inf_type_split[4]) %>%
 eu_all_db <- eu_mdr_df %>% 
   select(3:15) %>% 
   setNames(eu_abx_names)
+
+# Inspect for data for NA select only one with less than 25% missing
+
+fun_remove <- function(df){
+  rm_names <- df %>% 
+    summarise(across(everything(),
+                   pct_missing)) %>%
+  select(which(. <= 0.25))
+  
+  rm_names <- names(rm_names)
+  
+  df <- df %>% 
+    select(all_of(rm_names))
+  
+  return(df)
+}
+
+
+
+test_fun <- fun_remove(eu_all_db)
 
 #### clsi split
 
@@ -390,8 +450,35 @@ bp_ec_clsi %>%
   select(c(1, 8))
 
 ```
-Functions
+Functions to abv names
 ```{r}
+
+test_df <- mined_clsi_all_set
+
+test_df2 <- test_df %>% 
+  mutate(across(all.sets.items, as.character)) %>%
+  select(2) %>% 
+  separate(all.sets.items, into = paste0("node", 1:4), sep = ",")
+
+
+test_df2 <- data.frame(lapply(test_df2,
+                       function(x) {
+                         gsub("[\\{ | \\}]", "", x)
+                       }))
+
+
+test_df2$node1 <- bp_ec_clsi[match(test_df2$node1, bp_ec_clsi$Antimicrobial), ]$abbreviation
+test_df2$node2 <- bp_ec_clsi[match(test_df2$node2, bp_ec_clsi$Antimicrobial), ]$abbreviation
+test_df2$node3 <- bp_ec_clsi[match(test_df2$node3, bp_ec_clsi$Antimicrobial), ]$abbreviation
+test_df2$node4 <- bp_ec_clsi[match(test_df2$node4, bp_ec_clsi$Antimicrobial), ]$abbreviation
+
+test_df2 <- test_df2 %>% 
+  unite(node1:node4, col = "combo", sep = ".", remove = FALSE, na.rm = TRUE) %>% 
+  select(combo)
+
+test_df$combo <- test_df2$combo
+
+
 
 ```
 

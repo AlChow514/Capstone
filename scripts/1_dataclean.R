@@ -232,4 +232,4 @@ clsi_all_db <- clsi_mdr_df %>%
   select(3:15) %>% 
   setNames(clsi_abx_names)
 
-rm(ast_data, ast_ecoli, ast_ecoli_cleaned, drugs, inf_type_split, inf_type_split_clsi)
+#rm(ast_data, ast_ecoli, ast_ecoli_cleaned, drugs, inf_type_split, inf_type_split_clsi)

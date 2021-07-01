@@ -207,7 +207,7 @@ for (i in seq_along(all_df)) {
   rm(label, x)
 }
 ```
-inspecting data
+inspecting data for graphs
 ```{r}
 all_mine_df <- c("eu_all_set", "eu_bld_set", "eu_inab_set", "eu_pneu_set", "eu_skin_set",
                  "clsi_all_set", "clsi_bld_set", "clsi_inab_set", "clsi_pneu_set", "clsi_skin_set")
@@ -264,10 +264,71 @@ ecv
 eu_all_plt <- subset(eu_all_set, subset = CrossSupRatio > 0.75)
 plot(eu_all_plt, method= "graph")
 ```
+Inspecting mined sets
 ```{r}
-sapply(ec_interp_eucast, function(x) sum(is.na(x)))
+# convert all set items to factors
+df_category <- df_category %>% 
+  mutate(across(all.sets.items, as.factor)) 
 
+df_category_names <- df_category %>% 
+  distinct(all.sets.Category)
+
+df_category_names <- as.vector(df_category_names[, 1])
+
+for (i in seq_along(df_category_names)) {
+  label_name <- paste0("mined_", as.character(df_category_names[i]))
+  x <- df_category %>% 
+    filter(all.sets.Category == paste0(as.character(df_category_names[i])),
+           .$all.sets.csr > 0.75) %>% 
+    arrange(desc(all.sets.count))
+  assign(label_name, x)
+  rm(x, label_name)
+}
+
+# all sets above threshold of CSR 0.75
+clsi_mined <- df_category %>% 
+  filter(str_detect(.$all.sets.Category, "clsi_all"),
+         .$all.sets.csr > 0.75) %>% 
+  arrange(desc(all.sets.count))
+
+  
+eu_mined <- df_category %>% 
+  filter(str_detect(.$all.sets.Category, "eu_all"),
+         .$all.sets.csr > 0.75) %>% 
+  arrange(desc(all.sets.count))
 
 ```
+Combos for graphs
+```{r}
+
+fun_combo <- function(df) {
+  df <- df %>%
+    mutate(across(all.sets.items, as.character)) %>%
+    select(2) %>% 
+    separate(all.sets.items, into = paste0("node", 1:4), sep = ",")
+  
+  df <- data.frame(lapply(df,
+                       function(x) {
+                         gsub("[\\{ | \\}]", "", x)
+                       }))
+  df$node1 <- bp_ec_clsi[match(df$node1, bp_ec_clsi$Antimicrobial), ]$abbreviation
+  df$node2 <- bp_ec_clsi[match(df$node2, bp_ec_clsi$Antimicrobial), ]$abbreviation
+  df$node3 <- bp_ec_clsi[match(df$node3, bp_ec_clsi$Antimicrobial), ]$abbreviation
+  df$node4 <- bp_ec_clsi[match(df$node4, bp_ec_clsi$Antimicrobial), ]$abbreviation
+  
+  df <- df %>%
+    unite(node1:node4, col = "combo", sep = ".", remove = FALSE, na.rm = TRUE) %>%
+    select(combo)
+  
+  df
+}
+
+combo_clsi_bld <- fun_combo(mined_clsi_bld_inf)
+write_csv(combo_clsi_all, "../Data/combo_clsi_bld.csv")
+
+combo_clsi_all <- fun_combo(mined_clsi_all_set)
+write_csv(combo_clsi_all, "../Data/combo_clsi_all.csv")
+```
+
 
 
