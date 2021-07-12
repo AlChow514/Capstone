@@ -1,8 +1,8 @@
 Antimicrobial,abbreviation,class,S <=,I ,R >,ecoff
-Amikacin,AMK,aminoglycoside,8,,16,8
-Amoxicillin.clavulanic.acid,AMC,beta lactam,8,,32,8
+Amikacin,AMK,aminoglycoside,8,,8,8
+Amoxicillin.clavulanic.acid,AMC,beta lactam,8,,8,8
 Ampicillin,AMP,beta lactam,8,,8,8
-Ampicillin.sulbactam,SAM,beta lactam,8,,8,8
+Ampicillin.sulbactam,SAM,beta lactam,8,,8,
 Aztreonam,ATM,monobactam,1,,4,0.25
 Cefazolin,CFZ,cephalosporin,,,,4
 Cefepime,FEP,cephalosporin,1,,4,0.25
@@ -10,7 +10,7 @@ Cefoxitin,FOX,cephalosporin,,,,8
 Ceftaroline,CPT,cephalosporin,0.5,,0.5,0.5
 Ceftazidime,CAZ,cephalosporin,1,,4,0.5
 Ceftazidime.avibactam,CZA,cephalosporin,8,,8,
-Ceftolozane.tazobactam,C/T,cephalosporin,2,,1,1
+Ceftolozane.tazobactam,C/T,cephalosporin,2,,2,1
 Ceftriaxone,CRO,cephalosporin,1,,2,0.125
 Cefuroxime,CXM,cephalosporin,0.001,,8,8
 Ciprofloxacin,CIP,fluoroquinolones,0.25,,0.5,0.064
@@ -19,23 +19,23 @@ Doripenem,DOR,carbapenem,1,,2,0.125
 Doxycycline,DOX,tetracycline ,,,,4
 Ertapenem,ETP,carbapenem,0.5,,1,0.03
 FusidicAcid,FA,fusidane,,,,
-Gentamicin,GEN,aminoglycoside ,2,,4,2
-Imipenem,IPM,carbapenem,2,,8,0.5
+Gentamicin,GEN,aminoglycoside ,2,,2,2
+Imipenem,IPM,carbapenem,2,,4,0.5
 Levofloxacin,LVX,fluoroquinolones,0.5,,1,0.25
 Meropenem,MEM,carbapenem,2,,8,0.125
 Minocycline,MIN,tetracycline ,,,,4
-Moxifloxacin,MXF,fluoroquinolones,,,,0.25
+Moxifloxacin,MXF,fluoroquinolones,0.25,,0.25,0.25
 Mupirocin,MUP,monoxycarbolic acid,,,,
 NalidixicAcid,NAL,quinolone ,,,,8
 Omadacycline,OMC,tetracycline ,,,,
 Oritavancin,ORI,glycopeptide ,,,,
-Piperacillin,PIP,beta lactam,8,,16,8
-Piperacillin.tazobactam,TZP,beta lactam,8,,16,8
+Piperacillin,PIP,beta lactam,8,,8,8
+Piperacillin.tazobactam,TZP,beta lactam,8,,8,8
 Polymyxin B,PMB,polymyxin ,,,,
 Retapamulin,,pleuromutilin ,,,,
 Tetracycline,TET,tetracycline,,,,8
 Ticarcillin.clavulanate,TIM,beta lactam,8,,16,16
-Tigecycline,TGC,glycylcycline,1,,2,0.5
-Tobramycin,TOB,aminoglycoside ,2,,4,4
+Tigecycline,TGC,glycylcycline,0.5,,0.5,0.5
+Tobramycin,TOB,aminoglycoside ,2,,2,4
 Trimethoprim.sulfamethoxazole,SXT,sulfonamide,2,,4,0.25
 Nitrofurantoin,NIT,nitrofurans,64,,64,64
