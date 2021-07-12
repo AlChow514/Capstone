@@ -1,3 +1,7 @@
+install.packages("checkpoint")
+library(checkpoint)
+checkpoint("2020-12-31")
+
 # Load Libraries
 library(tidyverse)
 
@@ -11,95 +15,102 @@ ast_data <- read.table("Data/Linelist SENTRY site_136.csv", header=TRUE, skipNul
 
 ## Breakpoint tables
 bp_ec_eucast <- read.csv("Data/ec_bp_eucast.csv")
+##CC: there are data entry errors in bp_ec_eucast where S and R are the same. But this is used for ECOFFs
+##CC: some ECOFFs are not correct - need to be fixed.
 bp_ec_clsi <- read.csv("Data/ec_bp_clsi.csv")
 
 
 # Clean data
 ## Select E.coli data
 ast_ecoli <- ast_data %>% 
-  filter(.[, 11] == "EC") %>% 
-  select(which(colSums(!is.na(.)) > 0)) %>% 
-  select(c(1, 4, 11, 17:57))
+  filter(.[, 11] == "EC") %>% #select E. coli from Org Code
+  select(which(colSums(!is.na(.)) > 0)) %>%  #select columns that are not all missing
+  select(c(1, 4, 11, 17:57)) #select collection number, year, org code, infection type, and AMs
 
 
 ## Removes UTI data
 ast_ecoli <- ast_ecoli %>% 
-  filter(.[, 4]  != "urinary tract infection")
+  filter(.[, 4]  != "urinary tract infection") #col 4 = infection type
 
 
 ## Tabulate the percent of missing data for each anti-microbials by study year
 ec_tab <- ast_ecoli %>% 
-  select(c(2, 5:length(.))) %>% 
-  group_by(.[, 1]) %>% 
-  summarise(across(2:(length(.) - 1), pct_missing))
+  select(c(2, 5:length(.))) %>% #year and AMs
+  group_by(.[, 1]) %>%  #group by year
+  summarise(across(2:(length(.) - 1), pct_missing)) #summarise AMs (last column is grouping column ",[,1]")
+#note: gives reminder about summarise ungrouping but output ok
+#gives 0 for no missing data in the year-AM combo, 1 for all missing
 
 
 ## Tabulate only data that was tested in every year from 2008-2018
 drugs <- ec_tab %>% 
-  select(-c(1)) %>% 
-  summarise(across(.cols = everything(), sum)) %>% 
-  select(which(. <= 0))
+  select(-c(1)) %>%  #drop the group column
+  summarise(across(.cols = everything(), sum)) %>% #sum down columns (across all years)
+  select(which(. <= 0)) #keep only drug columns that = 0 (no missing data in any year)
 
 
-## Index of antimicrobials that was tested
+## Index of antimicrobials that was tested consistently
 am_included <- names(drugs)
 
 
 ## DF with only antimitcrobials that was tested
 ast_ecoli_cleaned <- ast_ecoli %>% 
-  select(c(1, 4), all_of(am_included))
+  select(c(1, 4), all_of(am_included)) #include collection number, infection type, and drugs
 
 
-## Drop am without s and r, NSbp is <= from breakpoints tables
+## Drop AM without s and r, NSbp is <= from breakpoints tables
 bp_ec_eucast <- bp_ec_eucast %>% 
-  filter(!is.na(.[, 7]) & !is.na(.[, 6])) %>% 
-  mutate('NSbp' = as.numeric(.[, 7]))
+  filter(!is.na(.[, 7]) & !is.na(.[, 6])) %>% #keep only drugs with a value in R column and ECOFF column
+  mutate('NSbp' = as.numeric(.[, 7])) #rename ECOFF column as the non-susceptible breakpoint (NSbp). MICs <= the NSbp will be susceptible
+##CC: check that the ECOFF is wt <= ECOFF and non-wt > ECOFF
 
 bp_ec_clsi <- bp_ec_clsi %>% 
-  filter(!is.na(.[, 4]) & !is.na(.[, 6])) %>% 
-  mutate('NSbp' = as.numeric(.[, 4]))
+  filter(!is.na(.[, 4]) & !is.na(.[, 6])) %>% #keep only drugs with a value in S and R columns
+  mutate('NSbp' = as.numeric(.[, 4])) #S column becomes NSbp, such that MICs <= NSbp are S and MICs > NSbp are R
 
 
-## Numerical index for mic to interpretation function
-eucast_am_bp_ind <- match(bp_ec_eucast$Antimicrobial, names(ast_ecoli_cleaned))
-eucast_am_bp_ind <- eucast_am_bp_ind[!is.na(eucast_am_bp_ind)]
+## Numerical index for mic to interpretation function. This will be the columns interpreted as S/R in the MIC_to_interpretation function
+eucast_am_bp_ind <- match(bp_ec_eucast$Antimicrobial, names(ast_ecoli_cleaned)) #column index of each AM with breakpoint in the ast_ecoli_cleaned
+eucast_am_bp_ind <- eucast_am_bp_ind[!is.na(eucast_am_bp_ind)] #remove NAs from AMs with breakpoints not in ast_ecoli_cleaned
 
-clsi_am_bp_ind <- match(bp_ec_clsi$Antimicrobial, names(ast_ecoli_cleaned))
+clsi_am_bp_ind <- match(bp_ec_clsi$Antimicrobial, names(ast_ecoli_cleaned)) #repeat for CLSI
 clsi_am_bp_ind <- clsi_am_bp_ind[!is.na(clsi_am_bp_ind)]
 
 
-## Runs Casey's function to interpret breakpoints into TRUE (resistant), and FALSE (susceptible)
-names(bp_ec_eucast)[1] <- "Antimicrobial"
-ec_interp_eucast <- MIC_to_interpretation(ast_ecoli_cleaned, eucast_am_bp_ind, bp_ec_eucast)
+## Run MIC_to_interpretation to interpret breakpoints into TRUE (resistant), and FALSE (susceptible)
+names(bp_ec_eucast)[1] <- "Antimicrobial" #bp dataframe needs col named "Antimicrobial" for the function
+ec_interp_eucast <- MIC_to_interpretation(ast_ecoli_cleaned, eucast_am_bp_ind, bp_ec_eucast) ##many dilutions not interpretable with ECOFF; values replaced by NA
 ec_interp_clsi <- MIC_to_interpretation(ast_ecoli_cleaned, clsi_am_bp_ind, bp_ec_clsi)
 
 
-## Drop not logical values
+## Drop not logical values from drugs (i.e., those not interpreted because there isn't a ECOFF or CLSI bp)
 ec_interp_eucast <- ec_interp_eucast %>% 
-  select(1:2, names(ec_interp_eucast[sapply(ec_interp_eucast, is.logical)]))
+  select(1:2, names(ec_interp_eucast[sapply(ec_interp_eucast, is.logical)])) #keep collection number (1) and infection type (2)
 
 ec_interp_clsi <- ec_interp_clsi %>% 
   select(1:2, names(ec_interp_clsi[sapply(ec_interp_clsi, is.logical)]))
 
 
 ## Group AM classes to determine MDR with greater than 3 resistances, main DF
+  #if only one drug per class, don't group (Aztreonam, Gentamicin, Levofloxacin, Tigecycline, Trimeth-sulfa)
 eu_mdr_df <- ec_interp_eucast %>% 
   mutate(
     BL = if_else(
-      (Ampicillin.sulbactam | Piperacillin.tazobactam) == TRUE, TRUE, FALSE
+      (Ampicillin.sulbactam | Piperacillin.tazobactam) == TRUE, TRUE, FALSE #beta lactam
     ),
     CS = if_else(
-      (Cefepime | Ceftazidime | Ceftriaxone) == TRUE, TRUE, FALSE
+      (Cefepime | Ceftazidime | Ceftriaxone) == TRUE, TRUE, FALSE #cephalosporin
     ),
     CP = if_else(
-      (Doripenem | Imipenem | Meropenem) == TRUE, TRUE, FALSE
+      (Doripenem | Imipenem | Meropenem) == TRUE, TRUE, FALSE #carbapenem
     )
   ) %>%
   mutate(
-    mdr = rowSums(across(c(4, 9, 11, 14:18)) == TRUE, na.rm = TRUE),
-    mdro = if_else(mdr >= 3, TRUE, FALSE)
+    mdr = rowSums(across(c(4, 9, 11, 14:18)) == TRUE, na.rm = TRUE), #sum TRUEs across aztreonam, gentamicin, levo, tigecyclein, trimeth-sulfa, BL, CS, CP
+    mdro = if_else(mdr >= 3, TRUE, FALSE) #MDR is >=3 resistances
   )
 
+#repeat for CLSI
 clsi_mdr_df <- ec_interp_clsi %>% 
   mutate(
     BL = if_else(
@@ -113,7 +124,8 @@ clsi_mdr_df <- ec_interp_clsi %>%
     )
   ) %>%
   mutate(
-    mdr = rowSums(across(c(4, 8:10, 12, 14:18)) == TRUE, na.rm = TRUE),
+    mdr = rowSums(across(c(4, 8:10, 12, 14:18)) == TRUE, na.rm = TRUE), #sum TRUEs across aztreonam, 
+    ##CC: error? 8 is doripenem, which is also counted in CP (18). shouldn't affect results b/c only 3 isolates have Doripenem R and they are MDRO without considering the carbapenems
     mdro = if_else(mdr >= 3, TRUE, FALSE)
   )
 
