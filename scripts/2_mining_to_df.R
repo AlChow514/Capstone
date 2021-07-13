@@ -2,10 +2,10 @@
 library(tidyverse)
 library(arules)
 
-# find indexes of antimicrobial column in df, ecv and clsi data is the same
+# find indexes of antimicrobial column to use in mining (exclude those missing due to no bp); ecv and clsi data is the same
 am_col <- eu_mdr_df %>% 
-  select(1:15) 
-am_col <- match(names(am_col)[sapply(am_col, is.logical)], names(am_col))
+  select(1:15) #collection number, infection type, drugs. exclude AM class columns and mdr, mdro
+am_col <- match(names(am_col)[sapply(am_col, is.logical)], names(am_col)) #include only logical T/F columns (exclude collection number and inf type), get column number
 
 # eu sets
 eu_db_sets <- c("eu_all_db", "eu_bld_db", "eu_inab_db", "eu_pneu_db", "eu_skin_db")
