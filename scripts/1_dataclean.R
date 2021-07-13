@@ -134,7 +134,9 @@ clsi_mdr_df <- ec_interp_clsi %>%
 
 ## Vector for infection types
 infection_types <- c("bloodstream infection", "intra-abdominal infection", "pneumonia in hospitalized patients", "skin/soft tissue infection")
-
+#drop other infection type levels
+eu_mdr_df$Infection.Type <- droplevels(eu_mdr_df$Infection.Type)
+clsi_mdr_df$Infection.Type <- droplevels(clsi_mdr_df$Infection.Type)
 
 ## Generate prevalence tables
 #fun_sum_ab calculates the percent susceptible (FALSE)
@@ -198,7 +200,7 @@ clsi_abx_names <- clsi_mdr_df %>%
   names()
 
 
-## eucast split, rename drugs in each dataframe and save separately
+## eucast split, rename drugs in each dataframe and save separately. cols 3:15 are drugs
 eu_bld_db <- as.data.frame(inf_type_split[1]) %>% 
   select(3:15) %>% 
   setNames(eu_abx_names) 
@@ -246,5 +248,3 @@ clsi_skin_db <- as.data.frame(inf_type_split_clsi[4]) %>%
 clsi_all_db <- clsi_mdr_df %>% 
   select(3:15) %>% 
   setNames(clsi_abx_names)
-
-#rm(ast_data, ast_ecoli, ast_ecoli_cleaned, drugs, inf_type_split, inf_type_split_clsi)

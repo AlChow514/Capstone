@@ -95,7 +95,7 @@ fun_sum_ab <- function(x) {
 fun_remove <- function(df){
   rm_names <- df %>% 
     summarise(across(everything(),
-                     pct_missing)) %>%
+                     pct_missing)) %>% #calculate the pct_missing in each column (drug)
     select(which(. <= 0.25))
   
   rm_names <- names(rm_names)
