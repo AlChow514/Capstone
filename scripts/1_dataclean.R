@@ -1,6 +1,6 @@
 install.packages("checkpoint")
 library(checkpoint)
-checkpoint("2020-12-31")
+checkpoint("2021-4-30")
 
 # Load Libraries
 library(tidyverse)
@@ -14,8 +14,10 @@ ast_data <- read.table("Data/Linelist SENTRY site_136.csv", header=TRUE, skipNul
 
 
 ## Breakpoint tables
-bp_ec_eucast <- read.csv("Data/ec_bp_eucast.csv")
-##CC: there are data entry errors in bp_ec_eucast where S and R are the same. But this is used for ECOFFs
+#eucast ECOFF as of 5-11-21 and breakpoint version 11.0 (1-1-21)
+bp_ec_eucast <- read.csv("Data/ec_bp_eucast.csv") #note that AMC ECOFF changed to "ID" on 5-27-21; meropenem changed to 0.06 on 5-15-21
+#if missing ECOFF, use S/R bp for NSbp
+
 ##CC: some ECOFFs are not correct - need to be fixed.
 bp_ec_clsi <- read.csv("Data/ec_bp_clsi.csv")
 
