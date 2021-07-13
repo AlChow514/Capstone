@@ -16,11 +16,11 @@ ast_data <- read.table("Data/Linelist SENTRY site_136.csv", header=TRUE, skipNul
 ## Breakpoint tables
 #eucast ECOFF as of 5-11-21 and breakpoint version 11.0 (1-1-21)
 bp_ec_eucast <- read.csv("Data/ec_bp_eucast.csv") #note that AMC ECOFF changed to "ID" on 5-27-21; meropenem changed to 0.06 on 5-15-21
-#if missing ECOFF, use S/R bp for NSbp
+#if missing ECOFF, use S/R bp
+bp_ec_eucast$ecoff <- ifelse(is.na(bp_ec_eucast$ecoff)==TRUE, bp_ec_eucast$S..., bp_ec_eucast$ecoff)
 
-##CC: some ECOFFs are not correct - need to be fixed.
 bp_ec_clsi <- read.csv("Data/ec_bp_clsi.csv")
-
+#note: parenteral breakpoints used over oral breakpoints when applicable. breakpoints current as of 7-12-21
 
 # Clean data
 ## Select E.coli data
@@ -68,7 +68,7 @@ bp_ec_eucast <- bp_ec_eucast %>%
 
 bp_ec_clsi <- bp_ec_clsi %>% 
   filter(!is.na(.[, 4]) & !is.na(.[, 6])) %>% #keep only drugs with a value in S and R columns
-  mutate('NSbp' = as.numeric(.[, 4])) #S column becomes NSbp, such that MICs <= NSbp are S and MICs > NSbp are R
+  mutate('NSbp' = as.numeric(.[, 4])) #S column becomes NSbp, such that MICs <= NSbp are S and MICs > NSbp are R/I
 
 
 ## Numerical index for mic to interpretation function. This will be the columns interpreted as S/R in the MIC_to_interpretation function
