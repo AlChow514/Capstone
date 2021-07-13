@@ -20,7 +20,7 @@ bp_ec_eucast <- read.csv("Data/ec_bp_eucast.csv") #note that AMC ECOFF changed t
 bp_ec_eucast$ecoff <- ifelse(is.na(bp_ec_eucast$ecoff)==TRUE, bp_ec_eucast$S..., bp_ec_eucast$ecoff)
 
 bp_ec_clsi <- read.csv("Data/ec_bp_clsi.csv")
-#note: parenteral breakpoints used over oral breakpoints when applicable. breakpoints current as of 7-12-21
+#note: parenteral breakpoints used over oral breakpoints when applicable. M100 breakpoints current as of 7-12-21
 
 # Clean data
 ## Select E.coli data
@@ -137,8 +137,9 @@ infection_types <- c("bloodstream infection", "intra-abdominal infection", "pneu
 
 
 ## Generate prevalence tables
+#fun_sum_ab calculates the percent susceptible (FALSE)
 eu_prevalence_data <- eu_mdr_df %>% 
-  select(2:15, 20) %>% 
+  select(2:15, 20) %>%  #columns: infection type, all drugs, mdro
   group_by(Infection.Type) %>% 
   summarize(
     N = n(),
@@ -155,13 +156,13 @@ eu_prevalence_data <- eu_mdr_df %>%
     TZP = fun_sum_ab(Piperacillin.tazobactam),
     TGC = fun_sum_ab(Tigecycline),
     SXT = fun_sum_ab(Trimethoprim.sulfamethoxazole),
-    MDR = 1 - fun_sum_ab(mdro)
+    MDR = 1 - fun_sum_ab(mdro) #MDR is TRUE, so need to do 1- fun_sum_ab
   )
 
 
 
 clsi_prevalence_data <- clsi_mdr_df %>% 
-  select(2:15, 20) %>% 
+  select(2:15, 20) %>% #columns: infection type, drugs, mdro
   group_by(Infection.Type) %>% 
   summarize(
     N = n(),
@@ -182,22 +183,22 @@ clsi_prevalence_data <- clsi_mdr_df %>%
   )
 
 
-# Data Splitting
+# Data Splitting, divide into dataframes by infection type
 inf_type_split <- split(eu_mdr_df, eu_mdr_df$Infection.Type)
 inf_type_split_clsi <- split(clsi_mdr_df, clsi_mdr_df$Infection.Type)
 
 
-## Rename with original antimicrobial names
+## Rename with original antimicrobial names (replace abbreviations)
 eu_abx_names <- eu_mdr_df %>% 
-  select(3:15) %>% 
+  select(3:15) %>% #drug columns
   names()
 
 clsi_abx_names <- clsi_mdr_df %>% 
-  select(3:15) %>% 
+  select(3:15) %>% #drug columns
   names()
 
 
-## eucast split  
+## eucast split, rename drugs in each dataframe and save separately
 eu_bld_db <- as.data.frame(inf_type_split[1]) %>% 
   select(3:15) %>% 
   setNames(eu_abx_names) 
